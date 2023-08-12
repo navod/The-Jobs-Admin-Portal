@@ -16,6 +16,7 @@ import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { authorsTableData, projectsTableData } from "@/data";
 import { Pagination } from "../Utility/Pagination";
 import UpdateConsultant from "./UpdateConsultant";
+import UpdateTime from "./UpdateTime";
 
 const Consultants = () => {
   const [email, setEmail] = React.useState("");
@@ -138,14 +139,8 @@ const Consultants = () => {
                           checked={true}
                         />
 
-                        {/* <Button
-                          variant="text"
-                          className="flex items-center gap-2"
-                          href="/profile"
-                        >
-                          View
-                        </Button> */}
                         <UpdateConsultant />
+                        <UpdateTime />
                       </td>
                     </tr>
                   );

@@ -12,13 +12,18 @@ import {
   MenuHandler,
   MenuItem,
   MenuList,
+  Switch,
   Typography,
 } from "@material-tailwind/react";
 import { useCountries } from "use-react-countries";
+import { hours, minutes } from "@/data/times-data";
+import AvailableTimeSlots from "./AvailableTimeSlots";
 
 const AddNewConsultant = () => {
   const { countries } = useCountries();
-  const [country, setCountry] = React.useState(0);
+  const [country, setCountry] = React.useState(
+    countries.findIndex((country) => country.name == "Sri Lanka")
+  );
   const { name, flags, countryCallingCode } = countries[country];
 
   return (
@@ -30,7 +35,7 @@ const AddNewConsultant = () => {
           </Typography>
         </CardHeader>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2 pl-8">
-          <div className="flex flex-row">
+          <div className="flex flex-row gap-10">
             <form class="mb-4 mt-4 w-full max-w-lg ">
               <div class="-mx-3 mb-6 flex flex-wrap">
                 <div class="mb-6 w-full px-3 md:mb-0 md:w-1/2">
@@ -277,12 +282,23 @@ const AddNewConsultant = () => {
                   </div>
                 </div>
 
-                <Button color="green" size="lg" className="w-[95%] ml-4 mt-10">Submit</Button>
+                <Button color="green" size="lg" className="ml-4 mt-10 w-[95%]">
+                  Submit
+                </Button>
               </div>
             </form>
 
-            <div className="flex w-full items-center justify-center">
-              <img src={AddNewClientImg} />
+            <div className="flex w-full flex-col gap-8 justify-center">
+              <Typography variant="h4">Available Time slots</Typography>
+              <AvailableTimeSlots title="sun" />
+              <AvailableTimeSlots title="mon" />
+              <AvailableTimeSlots title="tue" />
+              <AvailableTimeSlots title="wed" />
+              <AvailableTimeSlots title="thu" />
+              <AvailableTimeSlots title="fri" />
+              <AvailableTimeSlots title="sat" />
+
+              <img src={AddNewClientImg} className="w-80 h-80 object-contain" />
             </div>
           </div>
         </CardBody>

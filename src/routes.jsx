@@ -12,6 +12,7 @@ import {
   Tables,
   Notifications,
   Consultant,
+  MyBooking,
 } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 
@@ -49,9 +50,15 @@ export const routes = [
       },
       {
         icon: <UserCircleIcon {...icon} />,
-        name: "consultan",
-        path: "/consultan",
+        name: "consultant",
+        path: "/consultant",
         element: <Consultant />,
+      },
+      {
+        icon: <UserCircleIcon {...icon} />,
+        name: "My Booking",
+        path: "/my-booking",
+        element: <MyBooking />,
       },
     ],
   },
