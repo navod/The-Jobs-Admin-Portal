@@ -8,9 +8,94 @@ import {
   Checkbox,
   Button,
   Typography,
+  Alert,
 } from "@material-tailwind/react";
+import { useContext, useState, useEffect } from "react";
+import AuthService from "@/services/auth-service";
+import { useDispatch, useSelector } from "react-redux";
+import { AuthContext } from "@/context/index";
+import { useNavigate } from "react-router-dom";
+import { toast } from "@/components/Utility/utility";
 
 export function SignIn() {
+  const authContext = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+  const [inputs, setInputs] = useState({
+    email: "",
+    password: "",
+  });
+
+  const { userData } = useSelector((state) => state.auth);
+
+  const [errors, setErrors] = useState({
+    emailError: false,
+    passwordError: false,
+  });
+
+  const changeHandler = (e) => {
+    setInputs({
+      ...inputs,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const submitHandler = async (e) => {
+    // check rememeber me?
+    e.preventDefault();
+
+    const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+    if (
+      inputs.email.trim().length === 0 ||
+      !inputs.email.trim().match(mailFormat)
+    ) {
+      setErrors({ ...errors, emailError: true });
+      return;
+    }
+
+    if (inputs.password.trim().length < 6) {
+      setErrors({ ...errors, passwordError: true });
+      return;
+    }
+
+    const newUser = { email: inputs.email, password: inputs.password };
+
+    try {
+      const response = await AuthService.login(newUser);
+      if (response.status == "OK") {
+        authContext.login(response.data.access_token);
+        toast("Login Successfully", "success");
+      } else {
+        toast("Invalid Creditials", "error");
+      }
+    } catch (res) {
+      if (res.hasOwnProperty("message")) {
+        toast("Invalid Creditials", "error");
+      }
+    }
+
+    return () => {
+      setInputs({
+        email: "",
+        password: "",
+      });
+
+      setErrors({
+        emailError: false,
+        passwordError: false,
+      });
+    };
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard/home");
+    }
+  }, []);
+
   return (
     <>
       <img
@@ -30,14 +115,31 @@ export function SignIn() {
             </Typography>
           </CardHeader>
           <CardBody className="flex flex-col gap-4">
-            <Input type="email" label="Email" size="lg" />
-            <Input type="password" label="Password" size="lg" />
+            <Input
+              type="email"
+              label="Email"
+              size="lg"
+              value={inputs.email}
+              onChange={changeHandler}
+              error={errors.emailError}
+              name="email"
+            />
+
+            <Input
+              type="password"
+              label="Password"
+              size="lg"
+              value={inputs.password}
+              onChange={changeHandler}
+              error={errors.passwordError}
+              name="password"
+            />
             <div className="-ml-2.5">
               <Checkbox label="Remember Me" />
             </div>
           </CardBody>
           <CardFooter className="pt-0">
-            <Button variant="gradient" fullWidth>
+            <Button variant="gradient" fullWidth onClick={submitHandler}>
               Sign In
             </Button>
             <Typography variant="small" className="mt-6 flex justify-center">

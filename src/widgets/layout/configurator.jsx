@@ -151,9 +151,9 @@ export function Configurator() {
               href="https://www.creative-tim.com/product/material-tailwind-dashboard-react?rel=mtdr"
               target="_black"
             >
-              <Button variant="gradient" fullWidth>
+              {/* <Button variant="gradient" fullWidth>
                 Free Download
-              </Button>
+              </Button> */}
             </a>
             <a
               href="https://www.material-tailwind.com/docs/react/installation?rel=mtdr"

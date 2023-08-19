@@ -1,8 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const MaterialTailwind = React.createContext(null);
 MaterialTailwind.displayName = "MaterialTailwindContext";
+
+export const AuthContext = React.createContext({
+  isAuthenticated: false,
+  login: (state) => {
+    console.log(state);
+  },
+  register: () => {},
+  logout: () => {},
+});
 
 export function reducer(state, action) {
   switch (action.type) {
@@ -41,6 +51,7 @@ export function MaterialTailwindControllerProvider({ children }) {
   };
 
   const [controller, dispatch] = React.useReducer(reducer, initialState);
+
   const value = React.useMemo(
     () => [controller, dispatch],
     [controller, dispatch]
@@ -53,9 +64,57 @@ export function MaterialTailwindControllerProvider({ children }) {
   );
 }
 
+export const AuthContextProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (!token) return;
+
+    setIsAuthenticated(true);
+    navigate(location.pathname);
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
+
+    setIsAuthenticated(isAuthenticated);
+    if (
+      location.pathname === "/auth/sign-in" ||
+      location.pathname === "/auth/register"
+    ) {
+      navigate("/dashboard/home");
+    } else {
+      navigate(location.pathname);
+    }
+  }, [isAuthenticated]);
+
+  const login = (token) => {
+    console.log(token);
+    localStorage.setItem("token", token);
+    setIsAuthenticated(true);
+    navigate("/dashboard/home");
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    navigate("/auth/login");
+  };
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
 export function useMaterialTailwindController() {
   const context = React.useContext(MaterialTailwind);
-
   if (!context) {
     throw new Error(
       "useMaterialTailwindController should be used inside the MaterialTailwindControllerProvider."
