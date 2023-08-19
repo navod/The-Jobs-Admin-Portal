@@ -1,31 +1,25 @@
-import React from "react";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Typography,
-  Avatar,
-  Chip,
-  Tooltip,
-  Progress,
-  Button,
-  IconButton,
-  Input,
-} from "@material-tailwind/react";
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import { authorsTableData } from "@/data";
-import { Pagination } from "@/components/Utility/Pagination";
-import { BookingDetails } from "./BookingDetails";
-import BookingAccept from "./BookingAccept";
-import BookingReject from "./BookingReject";
+import {
+  Avatar,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
+  Typography,
+} from "@material-tailwind/react";
+import React from "react";
+import BookingAccept from "../Bookings/BookingAccept";
+import BookingReject from "../Bookings/BookingReject";
+import { BookingDetails } from "../Bookings/BookingDetails";
+import { Pagination } from "../Utility/Pagination";
 
-const Booking = () => {
+const TodayBooking = () => {
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
       <Card>
         <CardHeader variant="gradient" color="blue" className="mb-8 p-6">
           <Typography variant="h6" color="white">
-            Bookings
+            Today Bookings
           </Typography>
         </CardHeader>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
@@ -62,7 +56,7 @@ const Booking = () => {
           <table className="w-full min-w-[640px] table-auto">
             <thead>
               <tr>
-                {["name", "job detail", "status", "created", ""].map((el) => (
+                {["name", "job detail", "created", ""].map((el) => (
                   <th
                     key={el}
                     className="border-b border-blue-gray-50 py-3 px-5 text-left"
@@ -114,14 +108,6 @@ const Booking = () => {
                         </Typography>
                       </td>
                       <td className={className}>
-                        <Chip
-                          variant="gradient"
-                          color={online ? "green" : "blue-gray"}
-                          value={online ? "online" : "offline"}
-                          className="py-0.5 px-2 text-[11px] font-medium"
-                        />
-                      </td>
-                      <td className={className}>
                         <Typography className="text-xs font-semibold text-blue-gray-600">
                           {date}
                         </Typography>
@@ -132,8 +118,6 @@ const Booking = () => {
                           " mt-1 flex w-full flex-row items-center justify-center gap-4"
                         }
                       >
-                        <BookingAccept size="sm" />
-                        <BookingReject size="sm" />
                         <BookingDetails />
                       </td>
                     </tr>
@@ -150,4 +134,4 @@ const Booking = () => {
   );
 };
 
-export default Booking;
+export default TodayBooking;

@@ -10,6 +10,8 @@ import {
   Tooltip,
 } from "@material-tailwind/react";
 import JobSeeker from "@/../public/img/job-seeker-detail.png";
+import BookingAccept from "./BookingAccept";
+import BookingReject from "./BookingReject";
 
 export function BookingDetails() {
   const [open, setOpen] = React.useState(false);
@@ -31,13 +33,12 @@ export function BookingDetails() {
       </Button>
       <Dialog
         open={open}
-        handler={handleOpen}
         animate={{
           mount: { scale: 1, y: 0 },
           unmount: { scale: 0.9, y: -100 },
         }}
       >
-        <DialogHeader className="justify-between">
+        <DialogHeader className="justify-between" handler={handleOpen}>
           <Typography variant="h5" color="blue-gray">
             Job Seeker Details
           </Typography>
@@ -144,21 +145,16 @@ export function BookingDetails() {
               </div>
             </Button>
           </div>
-          <img className="h-52 w-52 object-contain absolute right-40" src={JobSeeker} />
+          <img
+            className="absolute right-40 h-52 w-52 object-contain"
+            src={JobSeeker}
+          />
         </DialogBody>
 
-        <DialogFooter>
-          <Button
-            variant="gradient"
-            color="red"
-            onClick={handleOpen}
-            className="mr-1"
-          >
-            <span>Reject</span>
-          </Button>
-          <Button variant="gradient" color="green" onClick={handleOpen}>
-            <span>Accept</span>
-          </Button>
+        <DialogFooter className="flex flex-row gap-2">
+          <BookingReject size="md" />
+
+          <BookingAccept size="md" />
         </DialogFooter>
       </Dialog>
     </>

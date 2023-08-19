@@ -16,7 +16,6 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import { useCountries } from "use-react-countries";
-import { hours, minutes } from "@/data/times-data";
 import AvailableTimeSlots from "./AvailableTimeSlots";
 
 const AddNewConsultant = () => {
@@ -288,7 +287,7 @@ const AddNewConsultant = () => {
               </div>
             </form>
 
-            <div className="flex w-full flex-col gap-8 justify-center">
+            <div className="flex w-full flex-col justify-center gap-8">
               <Typography variant="h4">Available Time slots</Typography>
               <AvailableTimeSlots title="sun" />
               <AvailableTimeSlots title="mon" />
@@ -298,7 +297,7 @@ const AddNewConsultant = () => {
               <AvailableTimeSlots title="fri" />
               <AvailableTimeSlots title="sat" />
 
-              <img src={AddNewClientImg} className="w-80 h-80 object-contain" />
+              <img src={AddNewClientImg} className="h-80 w-80 object-contain" />
             </div>
           </div>
         </CardBody>
