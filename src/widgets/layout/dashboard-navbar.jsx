@@ -88,9 +88,10 @@ export function DashboardNavbar() {
               variant="text"
               color="blue-gray"
               className="hidden items-center gap-1 px-4 xl:flex"
+              onClick={() => localStorage.removeItem("token")}
             >
               <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
-              Sign In
+              Logout
             </Button>
             <IconButton
               variant="text"
