@@ -7,16 +7,36 @@ import {
   DialogFooter,
   IconButton,
   Typography,
-  Tooltip,
 } from "@material-tailwind/react";
 import JobSeeker from "@/../public/img/job-seeker-detail.png";
 import BookingAccept from "./BookingAccept";
 import BookingReject from "./BookingReject";
+import { ToastContainer } from "react-toastify";
+import bookingService from "@/services/booking-service";
+import { toast } from "../Utility/utility";
 
-export function BookingDetails() {
+export function BookingDetails({
+  consultantDetails,
+  bookingDetails,
+  jobSeekerDetails,
+  getAll,
+}) {
   const [open, setOpen] = React.useState(false);
 
   const handleOpen = () => setOpen(!open);
+
+  const completBooking = () => {
+    bookingService
+      .completeBooking(bookingDetails.id)
+      .then((res) => {
+        getAll();
+        toast("Booking completed successfully", "success");
+        handleOpen();
+      })
+      .catch((e) => {
+        toast("Booking cannot complete..! Please re-check", "error");
+      });
+  };
 
   return (
     <>
@@ -66,13 +86,14 @@ export function BookingDetails() {
           </IconButton>
         </DialogHeader>
         <DialogBody divider className="flex flex-row">
+          <ToastContainer />
           <div className="flex flex-col gap-4">
             <div className="flex flex-row items-center gap-4">
               <Typography className="text-sm font-normal uppercase text-blue-gray-500">
                 Name :
               </Typography>
               <Typography className="text-sm font-normal uppercase text-blue-gray-500">
-                Navod Perera
+                {jobSeekerDetails.firstName + " " + jobSeekerDetails.lastName}
               </Typography>
             </div>
 
@@ -81,7 +102,7 @@ export function BookingDetails() {
                 email :
               </Typography>
               <Typography className="text-sm font-normal text-blue-gray-500">
-                navod@gmail.com
+                {jobSeekerDetails.email}
               </Typography>
             </div>
 
@@ -90,7 +111,7 @@ export function BookingDetails() {
                 phone :
               </Typography>
               <Typography className="text-sm font-normal text-blue-gray-500">
-                0763933541
+                {jobSeekerDetails.mobile}
               </Typography>
             </div>
 
@@ -99,7 +120,7 @@ export function BookingDetails() {
                 age :
               </Typography>
               <Typography className="text-sm font-normal text-blue-gray-500">
-                23
+                {jobSeekerDetails.age}
               </Typography>
             </div>
 
@@ -108,7 +129,7 @@ export function BookingDetails() {
                 preffered destination :
               </Typography>
               <Typography className="text-sm font-normal uppercase text-blue-gray-500">
-                Australia
+                {jobSeekerDetails.preferDestination}
               </Typography>
             </div>
 
@@ -117,7 +138,7 @@ export function BookingDetails() {
                 Preffered job type :
               </Typography>
               <Typography className="text-sm font-normal uppercase text-blue-gray-500">
-                Software Engineer
+                {jobSeekerDetails.preferJobType}
               </Typography>
             </div>
 
@@ -126,35 +147,83 @@ export function BookingDetails() {
                 Description :
               </Typography>
               <p className="text-sm font-normal uppercase text-blue-gray-500">
-                The key to more success is to have a lot of pillows. Put it this
-                way, it took me twenty five years to get these plants, twenty
-                five years of blood sweat and tears, and I&apos;m never giving
-                up, I&apos;m just getting started. I&apos;m up to something. Fan
-                luv.
+                {jobSeekerDetails.description
+                  ? jobSeekerDetails.description
+                  : "no"}
               </p>
             </div>
-            <Button
-              onClick={handleOpen}
-              className="flex w-max flex-row"
-              color="blue-gray"
-              size="sm"
-            >
-              <div className="flex flex-row items-center gap-3">
-                <i class="fa-solid fa-download"></i>
-                <p className="">Download CV</p>
-              </div>
-            </Button>
+            {localStorage.getItem("role") !== "CONSULTANT" && (
+              <>
+                <div className="flex flex-row items-center gap-4">
+                  <Typography className="text-sm font-normal uppercase text-blue-gray-500">
+                    Cosultant ID :
+                  </Typography>
+                  <Typography className="text-sm font-normal uppercase text-blue-gray-500">
+                    {consultantDetails.id}
+                  </Typography>
+                </div>
+
+                <div className="flex flex-row items-center gap-4">
+                  <Typography className="text-sm font-normal uppercase text-blue-gray-500">
+                    Cosultant Name :
+                  </Typography>
+                  <Typography className="text-sm font-normal uppercase text-blue-gray-500">
+                    {consultantDetails.firstName +
+                      " " +
+                      consultantDetails.lastName}
+                  </Typography>
+                </div>
+              </>
+            )}
+
+            {jobSeekerDetails.cv && (
+              <Button
+                onClick={handleOpen}
+                className="flex w-max flex-row"
+                color="blue-gray"
+                size="sm"
+              >
+                <div className="flex flex-row items-center gap-3">
+                  <i class="fa-solid fa-download"></i>
+                  <p className="">Download CV</p>
+                </div>
+              </Button>
+            )}
           </div>
           <img
-            className="absolute right-40 h-52 w-52 object-contain"
+            className="absolute right-20 h-52 w-52 object-contain opacity-50"
             src={JobSeeker}
           />
         </DialogBody>
 
         <DialogFooter className="flex flex-row gap-2">
-          <BookingReject size="md" />
+          {bookingDetails.status == "APPROVED" && (
+            <Button
+              onClick={completBooking}
+              className="flex flex-row"
+              color="blue"
+              size={"md"}
+            >
+              Complte
+            </Button>
+          )}
+          {bookingDetails.status == "PENDING" && (
+            <>
+              <BookingReject
+                size="md"
+                consultantId={consultantDetails.id}
+                bookingId={bookingDetails.id}
+                getAll={getAll}
+              />
 
-          <BookingAccept size="md" />
+              <BookingAccept
+                size="md"
+                consultantId={consultantDetails.id}
+                bookingId={bookingDetails.id}
+                getAll={getAll}
+              />
+            </>
+          )}
         </DialogFooter>
       </Dialog>
     </>

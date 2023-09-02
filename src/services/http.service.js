@@ -25,8 +25,8 @@ export class HttpService {
   patch = async (url, data) =>
     await this.request(this.getOptionsConfig("patch", url, data));
 
-  delete = async (url) =>
-    await this.request(this.getOptionsConfig("delete", url));
+  delete = async (url, data) =>
+    await this.request(this.getOptionsConfig("delete", url, data));
 
   getOptionsConfig = (method, url, data) => {
     return {

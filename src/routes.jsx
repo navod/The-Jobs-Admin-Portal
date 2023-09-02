@@ -6,14 +6,7 @@ import {
   ArrowRightOnRectangleIcon,
   UserPlusIcon,
 } from "@heroicons/react/24/solid";
-import {
-  Home,
-  Profile,
-  Tables,
-  Notifications,
-  Consultant,
-  MyBooking,
-} from "@/pages/dashboard";
+import { Home, Profile, MyBookings, Consultant } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 
 const icon = {
@@ -38,48 +31,37 @@ export const routes = [
       },
       {
         icon: <TableCellsIcon {...icon} />,
-        name: "tables",
-        path: "/tables",
-        element: <Tables />,
+        name: "my bookings",
+        path: "/my-bookings",
+        element: <MyBookings />,
       },
-      {
-        icon: <BellIcon {...icon} />,
-        name: "notifactions",
-        path: "/notifactions",
-        element: <Notifications />,
-      },
+
       {
         icon: <UserCircleIcon {...icon} />,
         name: "consultant",
         path: "/consultant",
         element: <Consultant />,
       },
+    ],
+  },
+  {
+    title: "auth pages",
+    layout: "auth",
+    pages: [
       {
-        icon: <UserCircleIcon {...icon} />,
-        name: "My Booking",
-        path: "/my-booking",
-        element: <MyBooking />,
+        icon: <ArrowRightOnRectangleIcon {...icon} />,
+        name: "sign in",
+        path: "/sign-in",
+        element: <SignIn />,
+      },
+      {
+        icon: <UserPlusIcon {...icon} />,
+        name: "sign up",
+        path: "/sign-up",
+        element: <SignUp />,
       },
     ],
   },
-  // {
-  //   title: "auth pages",
-  //   layout: "auth",
-  //   pages: [
-  //     {
-  //       icon: <ArrowRightOnRectangleIcon {...icon} />,
-  //       name: "sign in",
-  //       path: "/sign-in",
-  //       element: <SignIn />,
-  //     },
-  //     {
-  //       icon: <UserPlusIcon {...icon} />,
-  //       name: "sign up",
-  //       path: "/sign-up",
-  //       element: <SignUp />,
-  //     },
-  //   ],
-  // },
 ];
 
 export default routes;

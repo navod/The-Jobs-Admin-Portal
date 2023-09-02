@@ -5,7 +5,6 @@ import {
   Button,
   IconButton,
   Breadcrumbs,
-  Input,
   Menu,
   MenuHandler,
   MenuList,
@@ -25,6 +24,7 @@ import {
   setOpenConfigurator,
   setOpenSidenav,
 } from "@/context";
+import authService from "@/services/auth-service";
 
 export function DashboardNavbar() {
   const [controller, dispatch] = useMaterialTailwindController();
@@ -88,7 +88,12 @@ export function DashboardNavbar() {
               variant="text"
               color="blue-gray"
               className="hidden items-center gap-1 px-4 xl:flex"
-              onClick={() => localStorage.removeItem("token")}
+              onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                localStorage.removeItem("user_id");
+                localStorage.removeItem("user");
+              }}
             >
               <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
               Logout
