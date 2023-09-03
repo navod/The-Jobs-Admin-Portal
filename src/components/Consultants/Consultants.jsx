@@ -67,7 +67,7 @@ const Consultants = () => {
         ) : (
           <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
             <div className="flex justify-end p-4">
-              <div className="relative ml-4 flex w-full max-w-[24rem]">
+              {/* <div className="relative ml-4 flex w-full max-w-[24rem]">
                 <Input
                   type="text"
                   label="Search"
@@ -87,7 +87,7 @@ const Consultants = () => {
                 >
                   Search
                 </Button>
-              </div>
+              </div> */}
             </div>
             <table className="w-full min-w-[640px] table-auto">
               <thead>

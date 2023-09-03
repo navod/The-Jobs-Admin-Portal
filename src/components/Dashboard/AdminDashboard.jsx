@@ -132,7 +132,7 @@ export function AdminDashboard() {
               >
                 <div>
                   <Typography variant="h6" color="blue-gray" className="mb-1">
-                    Today Consultants
+                    Total Consultants
                   </Typography>
                   <Typography
                     variant="small"

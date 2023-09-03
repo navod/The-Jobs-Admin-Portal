@@ -25,7 +25,6 @@ export function ConsultantDashboard() {
       yesterday: "",
       today: "",
       yesterdayCount: 0,
-      todayCount: 0,
       increaseToday: 0,
     },
     pendingCount: 0,
