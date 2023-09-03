@@ -5,36 +5,19 @@ import {
   ChatBubbleLeftEllipsisIcon,
   Cog6ToothIcon,
   HomeIcon,
-  InformationCircleIcon,
 } from "@heroicons/react/24/solid";
 import {
-  Alert,
   Card,
   CardBody,
-  CardHeader,
   Tab,
   Tabs,
   TabsHeader,
-  Typography,
 } from "@material-tailwind/react";
 import React, { useState } from "react";
 
 export function Consultant() {
-  const [showAlerts, setShowAlerts] = React.useState({
-    blue: true,
-    green: true,
-    orange: true,
-    red: true,
-  });
-  const [showAlertsWithIcon, setShowAlertsWithIcon] = React.useState({
-    blue: true,
-    green: true,
-    orange: true,
-    red: true,
-  });
-  const alerts = ["blue", "green", "orange", "red"];
-
   const [tabValue, setTabValue] = useState(0);
+
   return (
     <div>
       <Card className="mx-3 mt-5 mb-6 lg:mx-4">

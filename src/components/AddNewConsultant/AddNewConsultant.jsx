@@ -1,29 +1,155 @@
 import { countriesData } from "@/data/countries-data";
 import { jobs } from "@/data/jobs-data";
-import React from "react";
+import React, { useState } from "react";
 import AddNewClientImg from "../../../public/img/add-new-construct.png";
 import {
   Button,
   Card,
   CardBody,
   CardHeader,
-  Input,
   Menu,
   MenuHandler,
   MenuItem,
   MenuList,
-  Switch,
   Typography,
 } from "@material-tailwind/react";
 import { useCountries } from "use-react-countries";
 import AvailableTimeSlots from "./AvailableTimeSlots";
+import { timeSlots } from "@/data/sampleTimeslots";
+import consultantService from "@/services/consultant-service";
+import { toast } from "../Utility/utility";
 
 const AddNewConsultant = () => {
   const { countries } = useCountries();
   const [country, setCountry] = React.useState(
-    countries.findIndex((country) => country.name == "Sri Lanka")
+    countries.findIndex((country) => country.name === "Sri Lanka")
   );
   const { name, flags, countryCallingCode } = countries[country];
+
+  const [slots, setSlots] = useState([]);
+
+  const [inputs, setInputs] = useState({
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
+    mobile: "",
+    nic: "",
+    reTypePassword: "",
+    country: countriesData[0].name,
+    jobType: jobs[0],
+  });
+
+  const changeHandler = (e) => {
+    setInputs({
+      ...inputs,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const [errors, setErrors] = useState({
+    email: false,
+    password: false,
+    firstName: false,
+    lastName: false,
+    mobile: false,
+    nic: false,
+    country: false,
+    reTypePassword: false,
+    jobType: false,
+  });
+
+  const onTimeSlotHanlder = (values) => {
+    const slotIndex = timeSlots.findIndex((slot) => slot.day === values.day);
+
+    if (slotIndex !== -1) {
+      timeSlots[slotIndex] = values;
+      timeSlots[slotIndex].status = true;
+    }
+
+    setSlots(timeSlots);
+  };
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+
+    const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+    if (
+      inputs.email.trim().length === 0 ||
+      !inputs.email.trim().match(mailFormat)
+    ) {
+      setErrors({ ...errors, email: true });
+      return;
+    }
+
+    if (inputs.password.length === 0) {
+      setErrors({ ...errors, password: true });
+      return;
+    }
+    if (inputs.firstName.length === 0) {
+      setErrors({ ...errors, firstName: true });
+      return;
+    }
+
+    if (inputs.nic.length === 0) {
+      setErrors({ ...errors, nic: true });
+      return;
+    }
+
+    if (inputs.mobile.length === 0) {
+      setErrors({ ...errors, mobile: true });
+      return;
+    }
+
+    if (inputs.password.trim() !== inputs.reTypePassword.trim()) {
+      setErrors({ ...errors, reTypePassword: true });
+      return;
+    }
+
+    if (slots.length == 0) {
+      toast("Please select available time slots", "error");
+      return;
+    }
+    const newConsultantObj = {
+      ...inputs,
+      timeSlots: slots,
+    };
+
+    await consultantService
+      .save({
+        ...newConsultantObj,
+        role: "CONSULTANT",
+      })
+      .then((resp) => {
+        toast("Consultant added successfully", "success");
+      })
+      .catch((e) => {
+        toast(e, "error");
+      });
+    setInputs({
+      email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
+      reTypePassword: "",
+      mobile: "",
+      nic: "",
+      country: countriesData[0],
+      jobType: jobs[0],
+    });
+
+    setErrors({
+      email: false,
+      firstName: false,
+      lastName: false,
+      password: false,
+      mobile: false,
+      nic: false,
+      country: false,
+      jobType: false,
+    });
+  };
 
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
@@ -45,14 +171,19 @@ const AddNewConsultant = () => {
                     First Name
                   </label>
                   <input
-                    class="mb-3 block w-full appearance-none rounded border border-red-500 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:bg-white focus:outline-none"
+                    class="mb-3 block w-full appearance-none rounded border bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:bg-white focus:outline-none"
                     id="grid-first-name"
                     type="text"
                     placeholder="Jane"
+                    name="firstName"
+                    onChange={changeHandler}
+                    value={inputs.firstName}
                   />
-                  <p class="text-xs italic text-red-500">
-                    Please fill out this field.
-                  </p>
+                  {errors.firstName && (
+                    <p class="text-xs italic text-red-500">
+                      Please fill out this field.
+                    </p>
+                  )}
                 </div>
                 <div class="w-full px-3 md:w-1/2">
                   <label
@@ -66,6 +197,9 @@ const AddNewConsultant = () => {
                     id="grid-last-name"
                     type="text"
                     placeholder="Doe"
+                    name="lastName"
+                    onChange={changeHandler}
+                    value={inputs.lastName}
                   />
                 </div>
               </div>
@@ -78,14 +212,19 @@ const AddNewConsultant = () => {
                     Email
                   </label>
                   <input
-                    class="mb-3 block w-full appearance-none rounded border border-red-500 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:bg-white focus:outline-none"
+                    class="mb-3 block w-full appearance-none rounded border bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:bg-white focus:outline-none"
                     id="grid-first-name"
                     type="text"
                     placeholder="Jane"
+                    name="email"
+                    onChange={changeHandler}
+                    value={inputs.email}
                   />
-                  <p class="text-xs italic text-red-500">
-                    Please fill out this field.
-                  </p>
+                  {errors.email && (
+                    <p class="text-xs italic text-red-500">
+                      Please fill out this field.
+                    </p>
+                  )}
                 </div>
                 <div class="w-full px-3 md:w-1/2">
                   <label
@@ -99,7 +238,16 @@ const AddNewConsultant = () => {
                     id="grid-last-name"
                     type="text"
                     placeholder="Doe"
+                    name="nic"
+                    onChange={changeHandler}
+                    value={inputs.nic}
                   />
+
+                  {errors.nic && (
+                    <p class="text-xs italic text-red-500">
+                      Please fill out this field.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -162,6 +310,9 @@ const AddNewConsultant = () => {
                   containerProps={{
                     className: "min-w-0",
                   }}
+                  name="mobile"
+                  onChange={changeHandler}
+                  value={inputs.mobile}
                 />
               </div>
               <div class="-mx-3 mb-6 flex flex-wrap">
@@ -177,10 +328,15 @@ const AddNewConsultant = () => {
                     id="grid-password"
                     type="password"
                     placeholder="******************"
+                    name="password"
+                    onChange={changeHandler}
+                    value={inputs.password}
                   />
-                  <p class="text-xs italic text-gray-600">
-                    Make it as long and as crazy as you'd like
-                  </p>
+                  {errors.password && (
+                    <p class="text-xs italic text-red-500">
+                      Please fill out this field.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -197,30 +353,15 @@ const AddNewConsultant = () => {
                     id="grid-password"
                     type="password"
                     placeholder="******************"
+                    name="reTypePassword"
+                    onChange={changeHandler}
+                    value={inputs.reTypePassword}
                   />
-                  <p class="text-xs italic text-gray-600">
-                    Make it as long and as crazy as you'd like
-                  </p>
-                </div>
-              </div>
-
-              <div class="-mx-3 mb-6 flex flex-wrap">
-                <div class="w-full px-3">
-                  <label
-                    class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-                    for="grid-password"
-                  >
-                    NIC
-                  </label>
-                  <input
-                    class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-                    id="grid-password"
-                    type="password"
-                    placeholder="******************"
-                  />
-                  <p class="text-xs italic text-gray-600">
-                    Make it as long and as crazy as you'd like
-                  </p>
+                  {errors.nic && (
+                    <p class="text-xs italic text-red-500">
+                      Re-type passwoed is mismatched
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -236,6 +377,9 @@ const AddNewConsultant = () => {
                     <select
                       class="block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
                       id="grid-state"
+                      onChange={changeHandler}
+                      name="country"
+                      value={inputs.country}
                     >
                       {countriesData.map((props) => (
                         <option key={props.code}>{props.name}</option>
@@ -264,9 +408,12 @@ const AddNewConsultant = () => {
                     <select
                       class="block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
                       id="grid-state"
+                      onChange={changeHandler}
+                      name="jobType"
+                      value={inputs.jobType}
                     >
                       {jobs.map((props) => (
-                        <option>{props}</option>
+                        <option key={{ props }}>{props}</option>
                       ))}
                     </select>
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
@@ -281,7 +428,12 @@ const AddNewConsultant = () => {
                   </div>
                 </div>
 
-                <Button color="green" size="lg" className="ml-4 mt-10 w-[95%]">
+                <Button
+                  color="green"
+                  size="lg"
+                  className="ml-4 mt-10 w-[95%]"
+                  onClick={submitHandler}
+                >
                   Submit
                 </Button>
               </div>
@@ -289,13 +441,14 @@ const AddNewConsultant = () => {
 
             <div className="flex w-full flex-col justify-center gap-8">
               <Typography variant="h4">Available Time slots</Typography>
-              <AvailableTimeSlots title="sun" />
-              <AvailableTimeSlots title="mon" />
-              <AvailableTimeSlots title="tue" />
-              <AvailableTimeSlots title="wed" />
-              <AvailableTimeSlots title="thu" />
-              <AvailableTimeSlots title="fri" />
-              <AvailableTimeSlots title="sat" />
+              {timeSlots.map((data) => (
+                <AvailableTimeSlots
+                  title={data.day.substring(0, 3)}
+                  data={data}
+                  getTimeSlots={onTimeSlotHanlder}
+                  key={data.day}
+                />
+              ))}
 
               <img src={AddNewClientImg} className="h-80 w-80 object-contain" />
             </div>
@@ -305,5 +458,4 @@ const AddNewConsultant = () => {
     </div>
   );
 };
-
 export default AddNewConsultant;

@@ -1,35 +1,83 @@
-import { jobs } from "@/data/jobs-data";
-import React from "react";
-import AddNewClientImg from "../../../public/img/add-new-construct.png";
+import React, { useState } from "react";
 import {
   Button,
-  Card,
-  CardBody,
-  CardHeader,
   Dialog,
   DialogBody,
   DialogFooter,
   DialogHeader,
   IconButton,
-  Input,
-  Menu,
-  MenuHandler,
-  MenuItem,
-  MenuList,
   Typography,
 } from "@material-tailwind/react";
-import { useCountries } from "use-react-countries";
-import { countriesData } from "@/data/countries-data";
 import AvailableTimeSlots from "../AddNewConsultant/AvailableTimeSlots";
+import { toast } from "react-toastify";
+import LoadingSpinner from "../Utility/CustomSpinner/CustomSpinner";
+import consultantService from "@/services/consultant-service";
 
-const UpdateTime = () => {
-  const { countries } = useCountries();
-  const [country, setCountry] = React.useState(0);
-  const { name, flags, countryCallingCode } = countries[country];
-
+const UpdateTime = ({ data, timeslots, getAll }) => {
   const [open, setOpen] = React.useState(false);
 
   const handleOpen = () => setOpen(!open);
+
+  const [id, setId] = useState(0);
+
+  const [selectData, setSelectData] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+
+  const invalidIds = [];
+
+  const [updatedValue, setUpdatedValue] = useState({});
+  const updateTimeValues = async (values) => {
+    const slotIndex = timeslots.findIndex((slot) => slot.id === values.id);
+
+    if (slotIndex !== -1) {
+      timeslots[slotIndex] = values;
+    }
+
+    const modifiedAvailabilities = timeslots.map((availability) => {
+      const { consultant, timeSlots, ...rest } = availability;
+      return rest;
+    });
+
+    const newConsultantObj = {
+      ...data,
+      timeSlots: modifiedAvailabilities,
+    };
+    setUpdatedValue(newConsultantObj);
+  };
+
+  const updateValue = async () => {
+    setLoading(true);
+    const response = await consultantService
+      .update(updatedValue)
+      .then((res) => {
+        toast("Consultant time updated successfully", "success");
+      })
+      .finally(() => {
+        getAll();
+        setLoading(false);
+      });
+  };
+
+  const checkValidations = (data) => {
+    if (selectData) {
+      const startDate = new Date(`2023-01-01 ${selectData.startTime}`);
+      const endDate = new Date(`2023-01-01 ${selectData.endTime}`);
+
+      const startDate1 = new Date(`2023-01-01 ${data.startTime}`);
+      const endDate2 = new Date(`2023-01-01 ${data.endTime}`);
+
+      if (startDate.getTime() < endDate.getTime()) {
+        return false;
+      } else {
+        const val = selectData.id;
+        invalidIds.push({ ...selectData, val });
+        return true;
+      }
+    } else {
+      return false;
+    }
+  };
 
   return (
     <>
@@ -81,24 +129,38 @@ const UpdateTime = () => {
           </IconButton>
         </DialogHeader>
         <DialogBody divider className=" flex flex-col gap-4 overflow-auto">
-          <AvailableTimeSlots title="Sun" />
-          <AvailableTimeSlots title="Mon" />
-          <AvailableTimeSlots title="Tue" />
-          <AvailableTimeSlots title="Wed" />
-          <AvailableTimeSlots title="Thu" />
-          <AvailableTimeSlots title="Fri" />
-          <AvailableTimeSlots title="Sat" />
+          {timeslots.map((data) => (
+            <>
+              <AvailableTimeSlots
+                title={data.day.substring(0, 3)}
+                data={data}
+                getTimeSlots={updateTimeValues}
+              />
+            </>
+          ))}
         </DialogBody>
 
         <DialogFooter>
-          <Button
-            variant="gradient"
-            className="w-full"
-            color="green"
-            onClick={handleOpen}
-          >
-            <span>Save</span>
-          </Button>
+          {loading ? (
+            <div>
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <Button
+              variant="gradient"
+              className="w-full"
+              color="yellow"
+              onClick={updateValue}
+              disabled={
+                Object.keys(updatedValue).length === 0 &&
+                localStorage.getItem("role") == "MANAGER"
+                  ? true
+                  : false
+              }
+            >
+              <span>Update</span>
+            </Button>
+          )}
         </DialogFooter>
       </Dialog>
     </>

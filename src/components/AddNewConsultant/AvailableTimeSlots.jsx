@@ -1,12 +1,100 @@
 import { hours, minutes } from "@/data/times-data";
 import { Switch, Typography } from "@material-tailwind/react";
-import React from "react";
+import React, { useState } from "react";
+import { ToastContainer } from "react-toastify";
 
-const AvailableTimeSlots = ({ title }) => {
+const AvailableTimeSlots = ({ title, data, getTimeSlots }) => {
+  const [status, setStatus] = useState(data?.status);
+
+  const [startTimeMin, setStartTimeMin] = useState(
+    data?.startTime == null ? "00" : data?.startTime?.split(":")[1]
+  );
+
+  const [endTimeHour, setEndTimeHour] = useState(
+    data?.endTime == null ? "00" : data?.endTime?.split(":")[0]
+  );
+
+  const [endTimeMin, setEndTimeMin] = useState(
+    data?.endTime == null ? "00" : data?.endTime?.split(":")[1]
+  );
+
+  const [startTimeHour, setStartTimeHour] = useState(
+    data?.startTime == null ? "00" : data?.startTime?.split(":")[0]
+  );
+
+  const [startTime, setStartTime] = useState(
+    new Date(`2023-01-01 ${data?.startTime}`)
+  );
+  const [endTime, setEndTime] = useState(
+    new Date(new Date(`2023-01-01 ${data?.endTime}`))
+  );
+
+  const handleChangeSwitch = (value) => {
+    setStatus(value);
+
+    if (value === false) {
+      setStartTimeHour("00");
+      setStartTimeMin("00");
+      setEndTimeMin("00");
+      setEndTimeHour("00");
+    }
+  };
+
+  const onHandleTime = (value, timeSlotValue) => {
+    switch (timeSlotValue) {
+      case "startHour":
+        setStartTimeHour(value);
+        getTimeSlots({
+          ...data,
+          startTime: `${value}:${startTimeMin}`,
+          endTime: `${endTimeHour}:${endTimeMin}`,
+          status: status,
+        });
+
+        setStartTime(new Date(`2023-01-01 ${value}:${startTimeMin}`));
+        break;
+
+      case "startMin":
+        setStartTimeMin(value);
+        getTimeSlots({
+          ...data,
+          startTime: `${startTimeHour}:${value}`,
+          endTime: `${endTimeHour}:${endTimeMin}`,
+          status: status,
+        });
+        setStartTime(new Date(`2023-01-01 ${startTimeHour}:${value}`));
+        break;
+
+      case "endHour":
+        setEndTimeHour(value);
+        getTimeSlots({
+          ...data,
+          startTime: `${startTimeHour}:${startTimeMin}`,
+          endTime: `${value}:${endTimeMin}`,
+          status: status,
+        });
+
+        setEndTime(new Date(`2023-01-01 ${value}:${endTimeMin}`));
+        break;
+
+      case "endMin":
+        setEndTimeMin(value);
+        getTimeSlots({
+          ...data,
+          startTime: `${startTimeHour}:${startTimeMin}`,
+          endTime: `${endTimeHour}:${value}`,
+          status: status,
+        });
+
+        setEndTime(new Date(`2023-01-01 ${endTimeHour}:${value}`));
+        break;
+    }
+  };
   return (
     <div className="flex flex-row items-center justify-around">
+      <ToastContainer />
       <Switch
-        id="custom-switch-component"
+        id={data.day}
         ripple={false}
         className="h-full w-full checked:bg-[#2ec946]"
         containerProps={{
@@ -15,7 +103,8 @@ const AvailableTimeSlots = ({ title }) => {
         circleProps={{
           className: "before:hidden left-0.5 border-none",
         }}
-        // checked={false}
+        checked={status}
+        onChange={(e) => handleChangeSwitch(e.target.checked)}
       />
       <p className="text-xs font-bold uppercase tracking-wide text-gray-700">
         {title}
@@ -25,11 +114,16 @@ const AvailableTimeSlots = ({ title }) => {
           <div class="relative w-20">
             <select
               class="block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              id="grid-state"
+              onChange={(e) => onHandleTime(e.target.value, "startHour")}
+              disabled={!status}
             >
-              {hours.map((props) => (
-                <option>{props}</option>
-              ))}
+              <option className="font-semibold">{startTimeHour}</option>
+              {hours.map((props, index) => {
+                if (props !== startTimeHour) {
+                  return <option key={index}>{props}</option>;
+                }
+                return null; // Exclude Australia from the options
+              })}
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
               <svg
@@ -49,11 +143,16 @@ const AvailableTimeSlots = ({ title }) => {
           <div class="relative w-20">
             <select
               class="block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              id="grid-state"
+              onChange={(e) => onHandleTime(e.target.value, "startMin")}
+              disabled={!status}
             >
-              {minutes.map((props) => (
-                <option>{props}</option>
-              ))}
+              <option className="font-semibold">{startTimeMin}</option>
+              {minutes.map((props) => {
+                if (props !== startTimeMin) {
+                  return <option key={props}>{props}</option>;
+                }
+                return null; // Exclude Australia from the options
+              })}
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
               <svg
@@ -74,11 +173,16 @@ const AvailableTimeSlots = ({ title }) => {
           <div class="relative w-20">
             <select
               class="block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              id="grid-state"
+              onChange={(e) => onHandleTime(e.target.value, "endHour")}
+              disabled={!status}
             >
-              {hours.map((props) => (
-                <option>{props}</option>
-              ))}
+              <option className="font-semibold">{endTimeHour}</option>
+              {hours.map((props) => {
+                if (props !== endTimeHour) {
+                  return <option key={props}>{props}</option>;
+                }
+                return null; // Exclude Australia from the options
+              })}
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
               <svg
@@ -98,11 +202,16 @@ const AvailableTimeSlots = ({ title }) => {
           <div class="relative w-20">
             <select
               class="block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              id="grid-state"
+              onChange={(e) => onHandleTime(e.target.value, "endMin")}
+              disabled={!status}
             >
-              {minutes.map((props) => (
-                <option>{props}</option>
-              ))}
+              <option className="font-semibold">{endTimeMin}</option>
+              {minutes.map((props) => {
+                if (props !== endTimeMin) {
+                  return <option key={props}>{props}</option>;
+                }
+                return null; // Exclude Australia from the options
+              })}
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
               <svg

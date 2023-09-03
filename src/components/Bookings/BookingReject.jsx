@@ -1,4 +1,4 @@
-import { hours, minutes } from "@/data/times-data";
+import bookingService from "@/services/booking-service";
 import {
   Button,
   Dialog,
@@ -6,11 +6,13 @@ import {
   DialogFooter,
   DialogHeader,
   Textarea,
-  Typography,
 } from "@material-tailwind/react";
 import React, { useState } from "react";
+import { toast } from "../Utility/utility";
+import { ClipLoader } from "react-spinners";
+import { ToastContainer } from "react-toastify";
 
-const BookingReject = ({ size }) => {
+const BookingReject = ({ size, consultantId, bookingId, getAll }) => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(!open);
 
@@ -22,6 +24,35 @@ const BookingReject = ({ size }) => {
     return `${year}-${month}-${day}`;
   };
 
+  const [loading, setLoading] = useState(false);
+
+  const [message, setMessage] = useState("");
+
+  const onReject = () => {
+    if (message == "") {
+      toast("Please add reject reason", "error");
+    } else {
+      const obj = {
+        rejectReason: message,
+        id: bookingId,
+      };
+
+      bookingService
+        .rejectBooking(obj)
+        .then((res) => {
+          setLoading(false);
+          getAll();
+          handleOpen();
+          toast("Booking reject successfully", "success");
+        })
+        .finally(() => setLoading(false))
+        .catch(() => {
+          setLoading(false);
+          toast("Booking cannot reject", "error");
+        });
+    }
+  };
+
   return (
     <>
       <>
@@ -30,6 +61,7 @@ const BookingReject = ({ size }) => {
           color="red"
           size={size ? size : "sm"}
           onClick={handleOpen}
+          disabled={localStorage.getItem("role") == "MANAGER"}
         >
           <div className="flex flex-row items-center gap-3">
             <i class="fa-solid fa-trash"></i>
@@ -37,24 +69,35 @@ const BookingReject = ({ size }) => {
           </div>
         </Button>
         <Dialog open={open} size="xs">
+          <ToastContainer />
           <DialogHeader>Booking Reject</DialogHeader>
           <DialogBody divider>
             <div className="my-2 flex w-full flex-col">
-              <Textarea label="Message *" />
+              <Textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                label="Message *"
+              />
             </div>
           </DialogBody>
           <DialogFooter>
-            <Button
-              variant="text"
-              color="red"
-              onClick={handleOpen}
-              className="mr-1"
-            >
-              <span>Cancel</span>
-            </Button>
-            <Button variant="gradient" color="green" onClick={handleOpen}>
-              <span>Confirm</span>
-            </Button>
+            {loading ? (
+              <ClipLoader size={30} color="green" />
+            ) : (
+              <>
+                <Button
+                  variant="text"
+                  color="red"
+                  onClick={handleOpen}
+                  className="mr-1"
+                >
+                  <span>Cancel</span>
+                </Button>
+                <Button variant="gradient" color="green" onClick={onReject}>
+                  <span>Confirm</span>
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </Dialog>
       </>

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useLocation, useNavigate } from "react-router-dom";
+import jwt_decode from "jwt-decode";
+import consultantService from "@/services/consultant-service";
+import authService from "@/services/auth-service";
 
 export const MaterialTailwind = React.createContext(null);
 MaterialTailwind.displayName = "MaterialTailwindContext";
@@ -94,15 +97,32 @@ export const AuthContextProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   const login = (token) => {
-    console.log(token);
     localStorage.setItem("token", token);
+    var decoded = jwt_decode(token);
+    localStorage.setItem("role", decoded.role);
+    localStorage.setItem("user_id", decoded.id);
     setIsAuthenticated(true);
+
+    if (localStorage.getItem("role") == "CONSULTANT") {
+      consultantService.getConsultant(decoded.id).then((res) => {
+        localStorage.setItem("user", JSON.stringify(res.data));
+      });
+    } else {
+      authService.getUser(decoded.id).then((res) => {
+        localStorage.setItem("user", JSON.stringify(res.data));
+      });
+    }
+
     navigate("/dashboard/home");
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("user");
     setIsAuthenticated(false);
+
     navigate("/auth/login");
   };
 
