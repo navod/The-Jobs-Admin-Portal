@@ -106,7 +106,7 @@ const AddNewConsultant = () => {
       setErrors({ ...errors, reTypePassword: true });
       return;
     }
-
+    console.log(slots);
     if (slots.length == 0) {
       toast("Please select available time slots", "error");
       return;

@@ -103,7 +103,7 @@ export function ConsultantDashboard() {
             />
 
             <StatisticsCard
-              title="Complete Bookings"
+              title="Approved Bookings"
               value={data.sheduledCount}
               color="yellow"
               icon={<UserPlusIcon className="h-6 w-6 text-white" />}
